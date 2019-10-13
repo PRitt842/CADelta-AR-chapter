@@ -11,4 +11,4 @@ sta.dat
 leaflet(data = sta.dat) %>% addTiles() %>%
   addCircleMarkers(lng = ~Longitude, lat = ~Latitude)
 # I can see that one station is far from study area so I need to remove it from the csv.
-# "Station Name" = Crowder Flat" needs to be deleted from the table. How can I do that?
+# "Station Name" = Crowder Flat" needs to be deleted from the table. It is row #34. How can I do that?
