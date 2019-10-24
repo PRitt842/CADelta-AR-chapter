@@ -1,6 +1,5 @@
 # download ar reanalysis data
 dir.create("data-raw/", F, T)
-
 # AR data
 download.file(
   "https://ucla.app.box.com/v/ARcatalog/folder/16460775063",

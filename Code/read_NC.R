@@ -5,3 +5,6 @@ library(chron)
 library(RNetCDF)
 # atmos-riv <- nc_open("globalARcatalog_MERRA2_1980-2019_v2.0.nc")
 # atmos-riv
+# lat <- ncvar_get(atmos-riv, "lat")
+# lon <- ncvar_get(atmos-riv, "lon")
+# time <- ncvar_get(atmos-riv, "time")
