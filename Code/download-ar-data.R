@@ -1,4 +1,4 @@
-# download AR nc data
+# download AR nc data - big file
 dir.create("data-raw/", F, T)
 # AR data
 download.file(
