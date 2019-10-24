@@ -1,4 +1,4 @@
-# download ar reanalysis data
+# download nc data
 dir.create("data-raw/", F, T)
 # AR data
 download.file(
