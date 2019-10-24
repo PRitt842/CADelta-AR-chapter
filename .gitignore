@@ -2,5 +2,8 @@
 .Rhistory
 .RData
 .Ruserdata
+<<<<<<< HEAD
 # ignore nc data
 data-raw/*.nc
+=======
+>>>>>>> ff1d6c8a599bf5d898730d36800ea75fec32b435
