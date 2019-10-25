@@ -1,11 +1,19 @@
-library(RColorBrewer)
-library(lattice)
 library(ncdf4)
-library(chron)
-library(ncdf.tools)
-library(RNetCDF)
-# atmos-riv <- nc_open("globalARcatalog_MERRA2_1980-2019_v2.0.nc")
-# atmos-riv
-# lat <- ncvar_get(atmos-riv, "lat")
-# lon <- ncvar_get(atmos-riv, "lon")
-# time <- ncvar_get(atmos-riv, "time")
+ncin <- nc_open("data-raw/globalARcatalog_MERRA2_1980-2019_v2.0.nc")
+print(ncin)
+# get lon and lat
+lat <- ncvar_get(ncin, "lat")
+nlat <- dim(lat)
+head(lat)
+lon <- ncvar_get(ncin, "lon")
+nlon <- dim(lon)
+head(lon)
+print(c(nlon,nlat))
+#get time
+time <- ncvar_get(ncin, "time")
+head(time)
+tunits <- ncatt_get(ncin,"time","units")
+nt <- dim(time)
+nt
+tunits
+nc_close(ncin)
