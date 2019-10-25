@@ -1,9 +1,4 @@
-library(RColorBrewer)
-library(lattice)
 library(ncdf4)
-library(chron)
-library(RNetCDF)
-library(tidyverse)
 ncin <- nc_open("data-raw/globalARcatalog_MERRA2_1980-2019_v2.0.nc")
 print(ncin)
 # get lon and lat
