@@ -1,4 +1,5 @@
 library(ncdf4)
+library(raster)
 ncin <- nc_open("data-raw/globalARcatalog_MERRA2_1980-2019_v2.0.nc")
 print(ncin)
 # get lon and lat
@@ -16,4 +17,6 @@ tunits <- ncatt_get(ncin,"time","units")
 nt <- dim(time)
 nt
 tunits
+# read raster
+raster <- raster("data-raw/globalARcatalog_MERRA2_1980-2019_v2.0.nc", varname = 'lfloc')
 nc_close(ncin)
