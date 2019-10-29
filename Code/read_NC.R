@@ -18,6 +18,5 @@ nt <- dim(time)
 nt
 tunits
 # read raster
-raster <- raster("data-raw/globalARcatalog_MERRA2_1980-2019_v2.0.nc", varname = 'lfloc')
+ARras <- raster("data-raw/globalARcatalog_MERRA2_1980-2019_v2.0.nc", varname = 'lfloc')
 nc_close(ncin)
-
