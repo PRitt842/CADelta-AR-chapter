@@ -1,4 +1,5 @@
 library(ncdf4)
+library(raster)
 ncin <- nc_open("data-raw/globalARcatalog_MERRA2_1980-2019_v2.0.nc")
 print(ncin)
 # get lon and lat
