@@ -17,4 +17,6 @@ tunits <- ncatt_get(ncin,"time","units")
 nt <- dim(time)
 nt
 tunits
+# read raster
+ARras <- raster("data-raw/globalARcatalog_MERRA2_1980-2019_v2.0.nc", varname = 'lfloc')
 nc_close(ncin)
