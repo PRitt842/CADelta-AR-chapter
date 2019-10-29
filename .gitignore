@@ -4,3 +4,4 @@
 .Ruserdata
 # ignore nc data
 data-raw/*.nc
+
