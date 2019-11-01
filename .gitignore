@@ -2,6 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
-# ignore nc data
+# ignore large data files
 data-raw/*.nc
+data-raw/*.txt
 

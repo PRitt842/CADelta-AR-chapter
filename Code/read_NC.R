@@ -1,10 +1,15 @@
 library(ncdf4)
 library(raster)
-getwd()
-# read raster
-ARras <- raster("data-raw/globalARcatalog_MERRA2_1980-2019_v2.0.nc", varname = 'lfloc')
+# open nc file
 ncin <- nc_open("data-raw/globalARcatalog_MERRA2_1980-2019_v2.0.nc")
-print(ncin)
+ncin
+# read raster
+ARras <- raster("data-raw/globalARcatalog_MERRA2_1980-2019_v2.0.nc", varname = 'lfloc', band = 1)
+ARras
+plot(ARras)
+
+b <- brick("data-raw/globalARcatalog_MERRA2_1980-2019_v2.0.nc", varname = 'lfloc')
+
 # get lon and lat
 lat <- ncvar_get(ncin, "lat")
 nlat <- dim(lat)
