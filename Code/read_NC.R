@@ -3,21 +3,26 @@ library(raster)
 # open nc file
 ncin <- nc_open("data-raw/globalARcatalog_MERRA2_1980-2019_v2.0.nc")
 ncin
+# read raster
+r <- raster("data-raw/globalARcatalog_MERRA2_1980-2019_v2.0.nc", varname = 'lfloc', band = 1)
+# I get: Warning message:
+# In .rasterObjectFromCDF(x, type = objecttype, band = band, ...) :
+# lfloc has more than 4 dimensions, I do not know what to do with these data
+
+# segment spatially?
+e <- extent(-121.9405, -121.1967, 37.62499, 38.58916)
+extent(r) <- e
+r
+
+# this is where I'm stuck. Code below is trying different things.
+
+# get var names
 varname <- names(ncin$var)
 varname
-b <- brick("data-raw/globalARcatalog_MERRA2_1980-2019_v2.0.nc", varname = 'lfloc', level=3)
-b
-# b <- brick("data-raw/globalARcatalog_MERRA2_1980-2019_v2.0.nc", varname = 'lfloc', lvar=4)
-# NAvalue(b) <- 9e+20
-plot(b)
-# I get: Error in ncvar_get_inner(ncid2use, varid2use, nc$var[[li]]$missval, addOffset,  : 
-# Error: variable has 5 dims, but start has 4 entries.  They must match!
-# read raster
-ARras <- raster("data-raw/globalARcatalog_MERRA2_1980-2019_v2.0.nc", varname = 'lfloc', band = 1)
-# Again, I get: Warning message:
-  # In .rasterObjectFromCDF(x, type = objecttype, band = band, ...) :
-  # lfloc has more than 4 dimensions, I do not know what to do with these data
-ARras
+
+ncin$dim$lat$vals
+ncin$dim$lon$vals
+
 # get lon and lat
 lat <- ncvar_get(ncin, "lat")
 nlat <- dim(lat)
@@ -29,6 +34,18 @@ print(c(nlon,nlat))
 #get time
 time <- ncvar_get(ncin, "time")
 head(time)
+
+# create raster brick
+b <- brick("data-raw/globalARcatalog_MERRA2_1980-2019_v2.0.nc", varname = 'lfloc', level=3)
+b
+# same error message as above
+NAvalue(b) <- 9e+20
+plot(b)
+# I get: Error in ncvar_get_inner(ncid2use, varid2use, nc$var[[li]]$missval, addOffset,  : 
+# Error: variable has 5 dims, but start has 4 entries.  They must match!
+
+
+# change time units?
 tunits <- ncatt_get(ncin,"time","units")
 nt <- dim(time)
 nt
