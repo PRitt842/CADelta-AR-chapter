@@ -1,7 +1,7 @@
 library(ncdf4)
 library(raster)
 # open nc file
-ncin <- nc_open("data-raw/globalARcatalog_MERRA2_1980-2019_v2.0.nc")
+ncin <- nc_open("data-raw/globalARcatalog_MERRA2_1980-2019_v2.0.nc", verbose = T)
 ncin
 # read raster
 r <- raster("data-raw/globalARcatalog_MERRA2_1980-2019_v2.0.nc", varname = 'lfloc', band = 1)
