@@ -5,6 +5,7 @@ download.file(
   "https://ucla.app.box.com/v/ARcatalog/folder/16460775063",
   "data-raw/globalARcatalog_MERRA2_1980-2019_v1.0.txt"
 )
+# .txt file was taken into Excel, extra header rows were removed, solumns re-named, and saved as a .csv
 library(tidyverse) 
 library(ggplot2) 
 library(scatterpie) 
@@ -15,9 +16,8 @@ library(readr)
 library(raster)
 library(sp)
 # Read atmospheric river global data
-test <- read.csv('Data/globalAR_1980-2019.csv', header=TRUE)
-head(test)
-
+global_ar <- read.csv('Data/globalAR_1980-2019.csv', header=TRUE)
+head(global_ar)
 global_ar
 summary(global_ar)
 names(global_ar)
