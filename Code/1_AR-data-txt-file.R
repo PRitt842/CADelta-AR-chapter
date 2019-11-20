@@ -5,7 +5,6 @@ download.file(
   "https://ucla.app.box.com/v/ARcatalog/folder/16460775063",
   "data-raw/globalARcatalog_MERRA2_1980-2019_v1.0.txt"
 )
-# File was transformed in excel in three ways and then saved as CSV: Dates and times were put into seperate columns and one single line of headers was created. Extra header lines were deleted.
 library(tidyverse) 
 library(ggplot2) 
 library(scatterpie) 
@@ -16,9 +15,20 @@ library(readr)
 library(raster)
 library(sp)
 # Read atmospheric river global data
-global_ar <- read.fwf('Data/globalAR_1980-2019.csv', c(4, 2, 2, 2, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6))
+test <- read.csv('Data/globalAR_1980-2019.csv', header=TRUE)
+head(test)
+
 global_ar
 summary(global_ar)
 names(global_ar)
 str(global_ar)
+# rename variables
 
+# plot(global_ar)
+# Need to make a subset for a smaller file
+# Read the boundaries of the shapefile
+bbox <- read_sf(dsn = "Data/Legal_Delta_Boundary.shp") %>% st_bbox()
+bbox
+# This is meant to if-then the data to the bounding box
+global_ar %>% 
+  filter(Landfall_lat >=37.62499 & Landfall_lat <=38.58916 & Landfall_lon >=-121.94045 & Landfall_lon <-121.19670)
