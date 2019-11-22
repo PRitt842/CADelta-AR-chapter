@@ -17,18 +17,25 @@ library(raster)
 library(sp)
 # Read atmospheric river global data
 global_ar <- read.csv('Data/globalAR_1980-2019.csv', header=TRUE)
-head(global_ar)
-global_ar
-summary(global_ar)
-names(global_ar)
-str(global_ar)
-# rename variables
+# head(global_ar)
+# global_ar
+# summary(global_ar)
+# names(global_ar)
+# str(global_ar)
+# Select columns we want
+colnames(global_ar)
+global_ar %>% 
+  select(Year, Month, Day, Hour, Total_IVT, Landfall_lon, Landfall_lat) %>%
+  filter(is.finite(Landfall_lon)) %>%
+  
+# summarise(TotalIVT = max(TotalIVT))
+
 
 # plot(global_ar)
 # Need to make a subset for a smaller file
 # Read the boundaries of the shapefile
 bbox <- read_sf(dsn = "Data/Legal_Delta_Boundary.shp") %>% st_bbox()
 bbox
-# This is meant to if-then the data to the bounding box
+# Filter to a bounding box
 global_ar %>% 
-  filter(Landfall_lat >=37.62499 & Landfall_lat <=38.58916 & Landfall_lon >=-121.94045 & Landfall_lon <-121.19670)
+  filter(Landfall_lat >= 37.62499 & Landfall_lat <= 38.58916 & Landfall_lon >= -121.94045 & Landfall_lon <-121.19670)
