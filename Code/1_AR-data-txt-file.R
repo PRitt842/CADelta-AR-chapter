@@ -16,6 +16,7 @@ library(readr)
 library(raster)
 library(sp)
 library(ggthemes)
+library(lubridate)
 # Read atmospheric river global data
 global_ar <- read.csv('Data/globalAR_1980-2019.csv', header=TRUE)
 # head(global_ar)
@@ -23,34 +24,42 @@ global_ar <- read.csv('Data/globalAR_1980-2019.csv', header=TRUE)
 # summary(global_ar)
 # names(global_ar)
 # str(global_ar)
-# Select columns we want
+# Select columns we want. Combine year, mont, day into one column.
 colnames(global_ar)
-northam <- global_ar %>% 
+ARdat <- global_ar %>% 
   select(Year, Month, Day, Hour, Equatorwd_end_lon, Equaterwd_end_lat, Polewd_end_lon, Polewd_end_lat, Total_IVT, Landfall_lon, Landfall_lat) %>%
   filter(is.finite(Landfall_lon))
+ARdat$Date <- with(ARdat, ymd(sprintf('%04d%02d%02d', Year, Month, Day))) # Make new vaiable "Date"
+# Need to combine Hours based on max Total_IVT for each Day if Landfall location is the same. Would this be: 
+# summarise(TotalIVT = max(Total_IVT)) How do we specify per Date if Landfall_lat and Landfall_lon are the same?
+ARdat
+# Preview of time series. What we want is time series of ARs making landfall, ts of IVT, and ts of floods.
+ggplot(ARdat, aes(Year, Total_IVT)) +
+  geom_line(colour = "grey50")
+# Visualize on world map
+armap <- ggplot(ARdat, aes(x = Landfall_lat, y = Landfall_lon)) +
+  borders("world", colour = "gray80", fill = "gray80", size = 0.3) +
+  geom_point(alpha = 0.3, size = 2, colour = "aquamarine3") 
+armap # Is this a projection problem?
 # set bounding box for ARs we want to see
 usamap <- map_data('usa')
-usamap
-xlim <- c(-  127, -60) 
+head(usamap)
+tail(usamap)
+xlim <- c(-127, -60) 
 ylim <- c(20, 50) 
 usbbox <- ggplot(usamap, aes('Landfall_lon','Landfall_lat')) +   
   geom_map(map=usamap, aes(map_id=region), fill=3, color=1) +   
   xlim(xlim)+   ylim(ylim)+   
   coord_quickmap() 
-usbbox
 # map ARs in US
-armap <- ggplot(northam, aes(x = Landfall_lat, y = Landfall_lon)) +
-  borders("world", colour = "gray80", fill = "gray80", size = 0.3) +
-  geom_point(alpha = 0.3, size = 2, colour = "aquamarine3") 
-armap
-# summarise(TotalIVT = max(TotalIVT))
+
 
 # Read the boundaries of the shapefile
 bbox <- read_sf(dsn = "Data/Legal_Delta_Boundary.shp") %>% st_bbox()
 bbox
 # Filter to a bounding box
-global_ar %>% 
-  filter(Landfall_lat >= 37.62499 & Landfall_lat <= 38.58916 & Landfall_lon >= -121.94045 & Landfall_lon <-121.19670)
+# ar_data %>% 
+  # filter(Landfall_lat >= 37.62499 & Landfall_lat <= 38.58916 & Landfall_lon >= -121.94045 & Landfall_lon <-121.19670)
 # Remove all groups in the pipe
 ungroup()
 
