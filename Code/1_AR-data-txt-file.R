@@ -26,21 +26,33 @@ global_ar <- read.csv('Data/globalAR_1980-2019.csv', header=TRUE)
 # str(global_ar)
 # Select columns we want. Combine year, mont, day into one column.
 colnames(global_ar)
-ARdat <- global_ar %>% 
-  select(Year, Month, Day, Hour, Equatorwd_end_lon, Equaterwd_end_lat, Polewd_end_lon, Polewd_end_lat, Total_IVT, Landfall_lon, Landfall_lat) %>%
-  filter(is.finite(Landfall_lon))
-ARdat$Date <- with(ARdat, ymd(sprintf('%04d%02d%02d', Year, Month, Day))) # Make new vaiable "Date"
+# Rename Landfall_lat and _lon columns 
+colnames(global_ar)[19] = "lon"
+colnames(global_ar)[20] = "lat"
+df <- global_ar %>% 
+  select(Year, Month, Day, Hour, Equatorwd_end_lon, Equaterwd_end_lat, Polewd_end_lon, Polewd_end_lat, Total_IVT, lon, lat) %>%
+  filter(is.finite(lon))
+# class(df)
+# Convert "lon" coordinates from 0-360 to -180 to 180
+nlon <- ifelse(df$lon > 180, -360 + df$lon, df$lon) 
+# Add nlon to df
+df$nlon <- with(df, nlon)
+# Make new variable "Date"
+df$Date <- with(df, ymd(sprintf('%04d%02d%02d', Year, Month, Day))) 
+df
+
 # Need to combine Hours based on max Total_IVT for each Day if Landfall location is the same. Would this be: 
-# summarise(TotalIVT = max(Total_IVT)) How do we specify per Date if Landfall_lat and Landfall_lon are the same?
-ARdat
+# by_date <- group_by(date, lat, lon) %>% summarise(by_day, IVT = max(Total_IVT, na.rm = TRUE)) 
+# How do we specify per Date if Landfall_lat and Landfall_lon are the same?
+df
 # Preview of time series. What we want is time series of ARs making landfall, ts of IVT, and ts of floods.
-ggplot(ARdat, aes(Year, Total_IVT)) +
+ggplot(df, aes(Year, Total_IVT)) +
   geom_line(colour = "grey50")
 # Visualize on world map
-armap <- ggplot(ARdat, aes(x = Landfall_lat, y = Landfall_lon)) +
+dfmap <- ggplot(df, aes(x = Landfall_lat, y = Landfall_lon)) +
   borders("world", colour = "gray80", fill = "gray80", size = 0.3) +
   geom_point(alpha = 0.3, size = 2, colour = "aquamarine3") 
-armap # Is this a projection problem?
+dfmap # Is this a projection problem?
 # set bounding box for ARs we want to see
 usamap <- map_data('usa')
 head(usamap)
