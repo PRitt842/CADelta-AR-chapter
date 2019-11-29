@@ -40,38 +40,49 @@ df$nlon <- with(df, nlon)
 # Make new variable "Date"
 df$Date <- with(df, ymd(sprintf('%04d%02d%02d', Year, Month, Day))) 
 df
-
 # Need to combine Hours based on max Total_IVT for each Day if Landfall location is the same. Would this be: 
 # by_date <- group_by(date, lat, lon) %>% summarise(by_day, IVT = max(Total_IVT, na.rm = TRUE)) 
 # How do we specify per Date if Landfall_lat and Landfall_lon are the same?
-df
 # Preview of time series. What we want is time series of ARs making landfall, ts of IVT, and ts of floods.
 ggplot(df, aes(Year, Total_IVT)) +
   geom_line(colour = "grey50")
 # Visualize on world map
-dfmap <- ggplot(df, aes(x = Landfall_lat, y = Landfall_lon)) +
+dfmap <- ggplot(df, aes(x = nlon, y = lat)) +
   borders("world", colour = "gray80", fill = "gray80", size = 0.3) +
   geom_point(alpha = 0.3, size = 2, colour = "aquamarine3") 
-dfmap # Is this a projection problem?
-# set bounding box for ARs we want to see
-usamap <- map_data('usa')
-head(usamap)
-tail(usamap)
-xlim <- c(-127, -60) 
-ylim <- c(20, 50) 
-usbbox <- ggplot(usamap, aes('Landfall_lon','Landfall_lat')) +   
-  geom_map(map=usamap, aes(map_id=region), fill=3, color=1) +   
-  xlim(xlim)+   ylim(ylim)+   
-  coord_quickmap() 
-# map ARs in US
-
-
+dfmap
+#Keep only the data for North America 
+# usamap <- map_data('usa')
+# xlim <- c(-127, -60) 
+# ylim <- c(20, 50) 
+# usbbox <- ggplot(usamap, aes('nlon','lat')) +   
+ # geom_map(map=usamap, aes(map_id=region), fill=3, color=1) +   
+ # xlim(xlim)+   ylim(ylim)+   
+ # coord_quickmap() 
+# usbbox
 # Read the boundaries of the shapefile
-bbox <- read_sf(dsn = "Data/Legal_Delta_Boundary.shp") %>% st_bbox()
-bbox
-# Filter to a bounding box
-# ar_data %>% 
-  # filter(Landfall_lat >= 37.62499 & Landfall_lat <= 38.58916 & Landfall_lon >= -121.94045 & Landfall_lon <-121.19670)
+# bbox <- read_sf(dsn = "Data/Legal_Delta_Boundary.shp") %>% st_bbox()
+# bbox
+# first attempt of selcting spatial data
+# ardat2 <- which(df[,11] > 20 & df[,11] < 60 & df[,12] > -60 & df[,12] < -130)
+# dim(df)
+# length(ardat2)
+# str(ardat2)
+#[1] 160 $4 latitude bends and 20 longitude bends
+# noramdat=df[ardat2,855:1454]
+# Filter to North America. I am using the non-convereted longitude.
+ar_data <- df %>% 
+  select(Hour, Equatorwd_end_lon, Equaterwd_end_lat, Polewd_end_lon, Polewd_end_lat, Total_IVT, lon, lat, nlon, Date) %>%
+  filter(lat > 20 & lat < 60, lon > 230 & lon < 300)
+str(ar_data)
+plot(ar_data)
+# Add dates of levee breaches in the region
+leve_df <- read.csv("Data/levee-breaches-by-date.csv", header = TRUE)
+# Make new variable "Date"
+leve_df$Date <- with(leve_df, ymd(sprintf('%04d%02d%02d', Year, Month, Day))) 
+leve_df
+# See if any date of levee breaches are same as dates in AR data
+
 # Remove all groups in the pipe
 ungroup()
 
