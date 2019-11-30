@@ -8,14 +8,14 @@ download.file(
 # .txt file was taken into Excel, extra header rows were removed, solumns re-named, and saved as a .csv
 library(tidyverse) 
 library(ggplot2) 
-library(scatterpie) 
+# library(scatterpie) 
 library(maps) 
-library(rgdal) 
+# library(rgdal) 
 library(sf)
 library(readr)
 library(raster)
 library(sp)
-library(ggthemes)
+# library(ggthemes)
 library(lubridate)
 # Read atmospheric river global data
 global_ar <- read.csv('Data/globalAR_1980-2019.csv', header=TRUE)
@@ -46,6 +46,10 @@ df
 # Preview of time series. What we want is time series of ARs making landfall, ts of IVT, and ts of floods.
 ggplot(df, aes(Year, Total_IVT)) +
   geom_line(colour = "grey50")
+ggplot(df, aes(nlon, lat)) + 
+  geom_polygon(aes(group = Date), fill = NA, colour = "grey50") +
+  geom_point(aes(size = Total_IVT), alpha = 1/3) +
+  coord_quickmap()
 # Visualize on world map
 dfmap <- ggplot(df, aes(x = nlon, y = lat)) +
   borders("world", colour = "gray80", fill = "gray80", size = 0.3) +
@@ -75,14 +79,23 @@ ar_data <- df %>%
   select(Hour, Equatorwd_end_lon, Equaterwd_end_lat, Polewd_end_lon, Polewd_end_lat, Total_IVT, lon, lat, nlon, Date) %>%
   filter(lat > 20 & lat < 60, lon > 230 & lon < 300)
 str(ar_data)
-plot(ar_data)
+ggplot(ar_data, aes(nlon, lat)) + 
+  geom_polygon(aes(group = Date), fill = NA, colour = "grey50") +
+  geom_point(aes(size = Total_IVT), alpha = 1/3) +
+  coord_quickmap()
+ggplot(ar_data, aes(Date, Total_IVT)) + 
+  geom_line(aes(group = lon)) +
+  geom_boxplot()
+ggplot(ar_data, aes(nlon, lat)) + 
+  geom_point(aes(size = Total_IVT)) + 
+  scale_size_area() + 
+  coord_quickmap()
 # Add dates of levee breaches in the region
 leve_df <- read.csv("Data/levee-breaches-by-date.csv", header = TRUE)
 # Make new variable "Date"
 leve_df$Date <- with(leve_df, ymd(sprintf('%04d%02d%02d', Year, Month, Day))) 
+# Do I need to filter na date? filter(is.na(Date))
 leve_df
 # See if any date of levee breaches are same as dates in AR data
 
-# Remove all groups in the pipe
-ungroup()
 
