@@ -42,6 +42,8 @@ leve_df$Date <- with(leve_df, ymd(sprintf('%04d%02d%02d', Year, Month, Day)))
 # combine levee breach dates with dates in AR data
 ar_breach <- ar_data %>% 
   inner_join(leve_df, by = "Date")
+# Now I want to show dates when there were breaches and ARs. How can I pick dates that occur in both tables? 
+# Also, I will need a 3-4 day window added between Date of AR and Date of levee failure.
 ggplot(ar_breach, aes(Date, Total_IVT)) + # show dates of ARs and IVTs
   geom_point(aes(size = lat.y, nlon.y), alpha = 1/3) + # and points for floods
   coord_quickmap()
