@@ -44,17 +44,17 @@ df
 # by_date <- group_by(date, lat, lon) %>% summarise(by_day, IVT = max(Total_IVT, na.rm = TRUE)) 
 # How do we specify per Date if Landfall_lat and Landfall_lon are the same?
 # Preview of time series. What we want is time series of ARs making landfall, ts of IVT, and ts of floods.
-ggplot(df, aes(Year, Total_IVT)) +
-  geom_line(colour = "grey50")
-ggplot(df, aes(nlon, lat)) + 
-  geom_polygon(aes(group = Date), fill = NA, colour = "grey50") +
-  geom_point(aes(size = Total_IVT), alpha = 1/3) +
-  coord_quickmap()
+# ggplot(df, aes(Year, Total_IVT)) +
+  # geom_line(colour = "grey50")
+# ggplot(df, aes(nlon, lat)) + 
+  #geom_polygon(aes(group = Date), fill = NA, colour = "grey50") +
+  #geom_point(aes(size = Total_IVT), alpha = 1/3) +
+  #coord_quickmap()
 # Visualize on world map
-dfmap <- ggplot(df, aes(x = nlon, y = lat)) +
-  borders("world", colour = "gray80", fill = "gray80", size = 0.3) +
-  geom_point(alpha = 0.3, size = 2, colour = "aquamarine3") 
-dfmap
+#dfmap <- ggplot(df, aes(x = nlon, y = lat)) +
+  #borders("world", colour = "gray80", fill = "gray80", size = 0.3) +
+  #geom_point(alpha = 0.3, size = 2, colour = "aquamarine3") 
+# dfmap
 #Keep only the data for North America 
 # usamap <- map_data('usa')
 # xlim <- c(-127, -60) 
@@ -74,28 +74,29 @@ dfmap
 # str(ardat2)
 #[1] 160 $4 latitude bends and 20 longitude bends
 # noramdat=df[ardat2,855:1454]
-# Filter to North America. I am using the non-convereted longitude.
+# Filter to North America using the non-convereted longitude.
 ar_data <- df %>% 
   select(Hour, Equatorwd_end_lon, Equaterwd_end_lat, Polewd_end_lon, Polewd_end_lat, Total_IVT, lon, lat, nlon, Date) %>%
   filter(lat > 20 & lat < 60, lon > 230 & lon < 300)
-str(ar_data)
-ggplot(ar_data, aes(nlon, lat)) + 
-  geom_polygon(aes(group = Date), fill = NA, colour = "grey50") +
-  geom_point(aes(size = Total_IVT), alpha = 1/3) +
-  coord_quickmap()
-ggplot(ar_data, aes(Date, Total_IVT)) + 
-  geom_line(aes(group = lon)) +
-  geom_boxplot()
-ggplot(ar_data, aes(nlon, lat)) + 
-  geom_point(aes(size = Total_IVT)) + 
-  scale_size_area() + 
-  coord_quickmap()
+#ggplot(ar_data, aes(nlon, lat)) + 
+ # geom_polygon(aes(group = Date), fill = NA, colour = "grey50") +
+  #geom_point(aes(size = Total_IVT), alpha = 1/3) +
+  #coord_quickmap()
+#ggplot(ar_data, aes(Date, Total_IVT)) + 
+ # geom_line(aes(group = lon)) +
+  #geom_boxplot()
+#ggplot(ar_data, aes(nlon, lat)) + 
+ # geom_point(aes(size = Total_IVT)) + 
+  #scale_size_area() + 
+  #coord_quickmap()
 # Add dates of levee breaches in the region
 leve_df <- read.csv("Data/levee-breaches-by-date.csv", header = TRUE)
 # Make new variable "Date"
 leve_df$Date <- with(leve_df, ymd(sprintf('%04d%02d%02d', Year, Month, Day))) 
 # Do I need to filter na date? filter(is.na(Date))
-leve_df
-# See if any date of levee breaches are same as dates in AR data
-
-
+# combine levee breach dates with dates in AR data
+ar_breach <- ar_data %>% 
+  inner_join(leve_df, by = "Date")
+ggplot(ar_breach, aes(Date, Total_IVT)) + # show dates of ARs and IVTs
+  geom_point(aes(size = lat.y, nlon.y), alpha = 1/3) + # and points for floods
+  coord_quickmap()
