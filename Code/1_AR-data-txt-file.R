@@ -33,7 +33,7 @@ df$Date <- with(df, ymd(sprintf('%04d%02d%02d', Year, Month, Day)))
 # Filter to North America using the non-convereted longitude.
 ar_data <- df %>% 
   select(Hour, Equatorwd_end_lon, Equaterwd_end_lat, Polewd_end_lon, Polewd_end_lat, Total_IVT, lon, lat, nlon, Date) %>%
-  filter(lat > 20 & lat < 60, lon > 230 & lon < 300)
+  filter(lat > 20 & lat < 60, lon > 130 & lon < 300)
 # Add dates of levee breaches in the region
 leve_df <- read.csv("Data/levee-breaches-by-date.csv", header = TRUE)
 # Make new variable "Date"
