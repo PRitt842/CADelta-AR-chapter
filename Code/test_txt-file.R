@@ -100,3 +100,9 @@ ar_breach <- ar_data %>%
 ggplot(ar_breach, aes(Date, Total_IVT)) + # show dates of ARs and IVTs
   geom_point(aes(size = lat.y, nlon.y), alpha = 1/3) + # and points for floods
   coord_quickmap()
+ggplot(ar_breach, aes(Date, Total_IVT)) + # show dates of ARs and IVTs
+  geom_point(aes(size = lat.y, nlon.y), alpha = 1/3) # and points for floods
+ggplot(ar_data, aes(nlon.y, lat.y)) + 
+  geom_point(aes(size = Total_IVT)) + 
+  scale_size_area() + 
+  coord_quickmap()
