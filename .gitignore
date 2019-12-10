@@ -5,4 +5,5 @@
 # ignore large data files
 data-raw/*.nc
 data-raw/*.txt
+data-raw/*.csv
 

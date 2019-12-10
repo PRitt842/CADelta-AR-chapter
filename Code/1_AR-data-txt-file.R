@@ -42,18 +42,37 @@ ggplot(ar_breach, aes(Date, Total_IVT)) + # show dates of ARs and IVTs
 ggplot(ar_breach, aes(y = lat.x, x = lon.x, size = Total_IVT)) +
       geom_point() +
       coord_quickmap()
-# categorize IVT stregnth
-p <- ggplot(ar_breach, aes(Date, Total_IVT)) +
-  geom_point(aes(colour = Total_IVT)) +
-  coord_quickmap()
-p + 
-  labs(x = "Year", y = "IVT", colour = "IVT strength\nkg m^-1 s^-1")
-  
-weak =  Total_IVT ≥ 250–500 
-moderate =  Total_IVT ≥ 500–750
-strong =  Total_IVT ≥ 750–1,000
-extreme =  Total_IVT ≥ 1,000–1,250 
-exceptional =  Total_IVT ≥ 1,250 
+# Bar chart
+ggplot(ar_breach, aes(Total_IVT)) + geom_bar(fill = "red") + theme_bw() +
+  labs(title = "IVT by count") + theme_gray() # dont know why this is not shpwing more counts
+# categorize by IVT stregnth
+summary(ar_breach)
+
+# create categories of IVT strength:  weak≥ 250–500, 
+# moderate≥ 500–750 strong≥ 750–1,000, extreme≥ 1,000–1,250, 
+# exceptional≥ 1,250 
+catIVT <- cut(ar_breach$Total_IVT, breaks=c(250,500,750,1000,1250,1500), 
+  labels=c("Weak", "Moderate","Strong", "Extreme", "Exceptional"), 
+  right=FALSE) #specify start 250, 500, etc.
+ar_breach$Total_IVT[1:10]
+catIVT[1:10]
+ggplot(ar_breach, aes(x = Date, y = Total_IVT, col = catIVT)) +
+  geom_point() +
+  ylim(250,NA) +
+  labs(main = "AR Categories", x = "Year", y = "IVT", col = "IVT strength\nkg m^-1 s^-1") 
+# How do I get NA off the legend?
+# I want to show lat.x, lon.x for each point (adding text) 
+
+# Bar chart
+ggplot(ar_breach, aes(Total_IVT)) + geom_bar(fill = "red")+theme_bw()+
+  scale_x_continuous("IVT", breaks = seq(250,1500)) +
+  scale_y_continuous("Year", breaks = seq(1980,2010,5)) +
+  coord_flip()+ labs(title = "Bar Chart") + theme_gray()
+
+
+  #c("250-500", "501-750", "751-1000", "1001-1250", "1250-NA")
+  #scale_y_continuous("Total_IVT", breaks = seq(250, 1250, by 500)) +
+
 # Map ARs (landfall locations) on dates of flood events. Plot by flood years?
 
 # I will need a 3-4 day window added between Date of AR and Date of levee failure.
