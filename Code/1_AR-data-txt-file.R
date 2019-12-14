@@ -5,13 +5,13 @@ library(lubridate)
 # Read atmospheric river global data in csv file modified from Bin Guan's txt file
 global_ar <- read.csv('Data/globalAR_1980-2019.csv', header=TRUE)
 # Combine year, month, day into one column.
-colnames(global_ar)
+colnames(global_ar) #get column names
 # colnames(global_ar)[19] = "lon" # This is landfall longitude
 # colnames(global_ar)[20] = "lat" # This is landfall latititude
 colnames(global_ar)[10] = "Equatorwd_end_lat" # correct mispelled column
 df <- global_ar %>% 
   # select(Year, Month, Day, Hour, Equatorwd_end_lon, Equatorwd_end_lat, Polewd_end_lon, Polewd_end_lat, Total_IVT, lon, lat) %>%
-  filter(is.finite(Landfall_lon))
+  filter(is.finite(Landfall_lon)) #ignore na values
 # Convert "Landfall_lon" coordinates from 0-360 to -180 to 180
 nLandfall_lon <- ifelse(df$Landfall_lon > 180, -360 + df$Landfall_lon, df$Landfall_lon) 
 # Add nlon to df
@@ -29,8 +29,7 @@ leve_df <- read.csv("Data/levee-breaches-by-date.csv", header = TRUE)
 leve_df$Date <- with(leve_df, ymd(sprintf('%04d%02d%02d', Year, Month, Day))) 
 # Combine levee breach dates with dates in AR data
 ar_breach <- ar_data %>% 
-  inner_join(leve_df, by = "Date") 
-
+  inner_join(leve_df, by = "Date")
 # To do: Map all the ARs origin and end in the ar_breach table. Pick only ones that pass through CA.
 
 # Now I want to show dates when there were breaches and ARs. How can I pick dates that occur in both tables? 
@@ -53,11 +52,27 @@ catIVT <- cut(ar_breach$Total_IVT, breaks=c(250,500,750,1000,1250,1500),
   right=FALSE) # this specifies starting at 250, 500, etc.
 ar_breach$Total_IVT[1:10]
 catIVT[1:10]
-ggplot(ar_breach, aes(x = Date, y = Total_IVT, col = catIVT)) + #Need to group by dates!
+ggplot(ar_breach, aes(x = Date, y = Total_IVT, col = catIVT)) + 
   # geom_text(aes(label = lat.x, nlon.x)) + # How can I label lat, lon of points?
   geom_point() +
   ylim(250, NA) +
   labs(main = "AR Categories", x = "Year", y = "IVT kg m^-1 s^-1", col = "AR category \nbased on Ralph et al. 2019") 
+
+#Try this again grouping by dates!
+by_date <- ar_breach %>% #Group ARs on same day together
+  group_by(Date) %>% #How can I retain all the varibles?
+  summarise(newIVT = max(Total_IVT))
+newcatIVT <- cut(by_date$newIVT, breaks=c(250,500,750,1000,1250,1500), 
+              labels=c("Weak", "Moderate","Strong", "Extreme", "Exceptional"), 
+              right=FALSE) # this specifies starting at 250, 500, etc.
+by_date$newIVT[1:10]
+newcatIVT[1:10]
+ggplot(by_date, aes(x = Date, y = newIVT, col = newcatIVT)) +
+  # geom_text(aes(label = lat.x, nlon.x)) + # How can I label lat, lon of points?
+  geom_point() +
+  ylim(250, NA) +
+  labs(main = "AR Categories", x = "Year", y = "IVT kg m^-1 s^-1", col = "AR category \nbased on Ralph et al. 2019") 
+
 # How do I get NA off the legend? How do I reverse order of legend?
 # Need to add flood data post-2010!
 # I want to show lat.x, lon.x for some points (adding text) 
@@ -76,3 +91,4 @@ ggplot(ar_breach, aes(Total_IVT)) + geom_bar(fill = "red")+theme_bw()+
 
 # I will need a 3-4 day window added between Date of AR and Date of levee failure.
 leve_df %>% mutate(Date_prior1 = Date - 1)
+
