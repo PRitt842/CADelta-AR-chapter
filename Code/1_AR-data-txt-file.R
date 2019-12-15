@@ -72,7 +72,7 @@ ggplot(by_date, aes(x = Date, y = newIVT, col = newcatIVT)) +
   geom_point() +
   ylim(250, NA) +
   labs(main = "AR Categories", x = "Year", y = "IVT kg m^-1 s^-1", col = "AR category \nbased on Ralph et al. 2019") 
-
+ungroup(by_date)
 # How do I get NA off the legend? How do I reverse order of legend?
 # Need to add flood data post-2010!
 # I want to show lat.x, lon.x for some points (adding text) 
@@ -92,3 +92,18 @@ ggplot(ar_breach, aes(Total_IVT)) + geom_bar(fill = "red")+theme_bw()+
 # I will need a 3-4 day window added between Date of AR and Date of levee failure.
 leve_df %>% mutate(Date_prior1 = Date - 1)
 
+# What ARs led to catastrophic flooding? Then, look for other ARs of similar IVT not aligned w/ floods.
+floods <- read.csv('Data/flood_sheet.csv', header=TRUE) #open flood data from breaches and media combined
+floods$Date <- with(floods, ymd(sprintf('%04d%02d%02d', Year, Month, Day))) 
+ar_flood <- ar_data %>% 
+  inner_join(floods, by = "Date") #add flood dates to ar data
+catIVT <- cut(ar_flood$Total_IVT, breaks=c(250,500,750,1000,1250,1500), 
+              labels=c("Weak", "Moderate","Strong", "Extreme", "Exceptional"), 
+              right=FALSE) # this specifies starting at 250, 500, etc.
+ar_flood$Total_IVT[1:10]
+catIVT[1:10]
+ggplot(ar_flood, aes(x = Date, y = Total_IVT, col = catIVT)) + 
+  # geom_text(aes(label = lat.x, nlon.x)) + # How can I label lat, lon of points?
+  geom_point() + #plot points=flood dates
+  ylim(250, NA) +
+  labs(main = "AR Categories", x = "Year", y = "IVT kg m^-1 s^-1", col = "AR category \nbased on Ralph et al. 2019") 
