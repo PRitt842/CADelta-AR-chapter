@@ -96,7 +96,7 @@ leve_df %>% mutate(Date_prior1 = Date - 1)
 floods <- read.csv('Data/flood_sheet.csv', header=TRUE) #open flood data from breaches and media combined
 floods$Date <- with(floods, ymd(sprintf('%04d%02d%02d', Year, Month, Day))) 
 ar_flood <- ar_data %>% 
-  inner_join(floods, by = "Date") #add flood dates to ar data
+  right_join(floods, by = "Date") #add flood dates to ar data, keep all rows for floods
 catIVT <- cut(ar_flood$Total_IVT, breaks=c(250,500,750,1000,1250,1500), 
               labels=c("Weak", "Moderate","Strong", "Extreme", "Exceptional"), 
               right=FALSE) # this specifies starting at 250, 500, etc.
@@ -107,3 +107,8 @@ ggplot(ar_flood, aes(x = Date, y = Total_IVT, col = catIVT)) +
   geom_point() + #plot points=flood dates
   ylim(250, NA) +
   labs(main = "AR Categories", x = "Year", y = "IVT kg m^-1 s^-1", col = "AR category \nbased on Ralph et al. 2019") 
+
+flood_ivt <- group_by(lfloc_lat, lfloc_lon, Date) %>% #group by lat, lon, and date
+  slice(
+    which.max(Total_IVT)
+  ) #get max IVT per site/date
