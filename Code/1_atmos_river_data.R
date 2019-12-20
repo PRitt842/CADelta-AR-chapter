@@ -15,37 +15,69 @@ ar_west <- global_ar %>%
   
 floods <- read.csv('Data/flood_sheet.csv', header=TRUE) #read data of known floods
 floods$Date <- with(floods, ymd(sprintf('%04d%02d%02d', Year, Month, Day))) #add variable Date
-winter_floods <- floods %>% 
-  mutate(stat_year = ifelse(month(Date) %in% c(9:12), year(Date) + 1, year(Date))) %>% #add varaible for seasonal year classificiation
-  filter(month(Date) %in% c(1:3, 9:12)) #only look at winter months
+floods$nFlood_date <- with(floods, ymd(sprintf('%04d%02d%02d', Year, Month, Day))) #correct formate for flood only dates
+#winter_floods <- floods %>% 
+  #mutate(stat_year = ifelse(month(Date) %in% c(9:12), year(Date) + 1, year(Date))) %>% #add varaible for seasonal year classificiation
+  #filter(month(Date) %in% c(1:3, 9:12)) #only look at winter months
 
 daily_ivt <- ar_west %>% 
-  group_by(Date) %>%
-  summarise(Total_IVT_max = max(Total_IVT)) #group AR data to ignore hourly; set IVT as daily max
-#join data
-dmatch <- winter_floods %>% 
-  left_join(daily_ivt, copy = TRUE) #add flood dates; keep all rows
+  group_by(Date) %>% #group by Date
+  summarise(TIVT = max(Total_IVT)) #aggregate daily IVT by highest value
 
-#I want to bracket dates to allow for ARs that happened a few days before the flood!
-# I will need a 3-4 day window added between Date of AR and Date of levee failure.
-# sample: leve_df %>% mutate(Date_prior1 = Date - 1)
+dmatch <- floods %>% #join data tables
+  right_join(daily_ivt, copy = TRUE) %>% #add flood dates; keep all observations in daily_ivt
+  mutate(flood_year = ifelse(month(Date) %in% c(9:12), year(Date) + 1, year(Date))) %>% #add flood years
+  filter(month(Date) %in% c(1:3, 9:12)) #only look at winter months
+# I will need an 7 day window added before Date of flood
+# sample: df %>% mutate(Date_prior1 = Date - 1)
 
-catIVT <- cut(dmatch$Total_IVT_max, breaks=c(250,500,750,1000,1250,1500), 
+catIVT <- cut(dmatch$TIVT, breaks=c(250,500,750,1000,1250,1500), #set categories for AR strength
               labels=c("Weak", "Moderate","Strong", "Extreme", "Exceptional"), 
               right=FALSE) # this specifies starting at 250, 500, etc.
-dmatch$Total_IVT_max[1:10]
+dmatch$TIVT_max[1:10]
 catIVT[1:10]
 
-ggplot(dmatch, aes(Date, Total_IVT_max, col = catIVT)) + 
-  geom_point() + #plot points=flood dates
-  ylim(250, NA) +
+ggplot(dmatch) +
+  geom_histogram(aes(x = flood_year), binwidth = 0.5) + #count of #of ARs by water year
+  labs(title = "ARs making landfall in the region", x = "Water Year", y = "# of ARs") 
+
+#What were conditions in the week prior to each flood?
+dmatch <- dmatch %>%
+  mutate(prior_week = nFlood_date - weeks(1)) #create variable for 7 days prior to each flood date
+##pick up here
+ggplot(dmatch, aes(Flood_date_prior, TIVT)) + 
+  geom_boxplot(aes(x = Flood_date)) #IVT around time of floods
+
+
+ggplot(dmatch, aes(Date, TIVT, col = catIVT)) + 
+  geom_point(aes(group = nFlood_date)) + #plot points=flood dates +
+  ylim(250, 1500) +
   scale_colour_discrete(na.translate = F) + #remove NA from legend
-  labs(main = "AR Categories", x = "Year", y = "IVT kg m^-1 s^-1", col = "AR category \nbased on Ralph et al. 2019") 
+  labs(title = "ARs in the D \ncategories from Ralph et al. 2019", x = "Year", y = "IVT kg m^-1 s^-1", col = "Strength") 
+
+daily_precip <- read.csv('Data/daily-precip-1940-2018.csv', header=TRUE) #read daily precipitation data
+dmy()
+###
+#stop here
+#facet test below
+ggplot(dmatch, aes(Flood_date, TIVT, col = catIVT)) + 
+  geom_point() + #plot points=flood dates
+  ylim(250, 1500) +
+  scale_colour_discrete(na.translate = F) + #remove NA from legend
+  labs(title = "ARs in the D \ncategories from Ralph et al. 2019", x = "Year", y = "IVT kg m^-1 s^-1", col = "Strength") + #subset flood years  
+  facet_wrap(~ flood_year)
+
+usa <- map_data("usa")
+usa
+p <- ggplot() + 
+  geom_polygon(usa, aes(x=long, y=lat, group=group)) +
+  geom_point(ar_west, aes(x=Centroid_lon, y=Centroid_lat, colour="blue"), size=5, alpha=I(0.7))
+
 
 #sample
-ggplot(dmatch, aes(Total_IVT_max, Flood_date)) + 
+ggplot(dmatch, aes(nFlood_date, Date)) + 
   geom_boxplot() +
-  geom_line(aes(group = Date), colour = "#3366FF", alpha = 0.5)
+  geom_line(aes(group = Total_IVT_max), colour = "#3366FF", alpha = 0.5)
   
 # geom_text(aes(label = lat.x, nlon.x)) + # How can I label lat, lon of points?
 
