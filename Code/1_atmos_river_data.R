@@ -1,18 +1,23 @@
 library(tidyverse) 
 library(ggplot2) 
 library(readr)
+library(lubridate)
+
 global_ar <- read.csv('Data/globalAR_1980-2019.csv', header=TRUE) #read AR global data (csv file modified from Bin Guan's txt file)
+
 colnames(global_ar) #get column names
 colnames(global_ar)[19] = "lfloc_lon" #change name of Landfall_lon
 colnames(global_ar)[20] = "lfloc_lat" #change name of Landfall_lat
 colnames(global_ar)[10] = "Equatorwd_end_lat" #correct mispelled column
-library(lubridate)
+
 nlfloc_lon <- ifelse(global_ar$lfloc_lon > 180, -360 + global_ar$lfloc_lon, global_ar$lfloc_lon) #convert coordinates from 0-360 to -180 to 180
 global_ar$nlfloc_lon <- with(global_ar, nlfloc_lon) #add nlfloc_lon to global_ar
 global_ar$Date <- with(global_ar, ymd(sprintf('%04d%02d%02d', Year, Month, Day)))  ##make new variable "Date" combining year, month, day
 ar_west <- global_ar %>% 
   filter(lfloc_lat > 30 & lfloc_lat < 50, lfloc_lon > 230 & lfloc_lon < 250) #look at only ARs that landed in the US west coast
-  
+
+#create smaller file to work with
+
 floods <- read.csv('Data/flood_sheet.csv', header=TRUE) #read data of known floods
 floods$Date <- with(floods, ymd(sprintf('%04d%02d%02d', Year, Month, Day))) #add variable Date
 floods$nFlood_date <- with(floods, ymd(sprintf('%04d%02d%02d', Year, Month, Day))) #correct formate for flood only dates
