@@ -42,15 +42,21 @@ catIVT <- cut(dmatch$TIVT, breaks=c(250,500,750,1000,1250,1500), #set categories
 dmatch$TIVT_max[1:10]
 catIVT[1:10]
 
+
 ggplot(dmatch) +
   geom_histogram(aes(x = flood_year), binwidth = 0.5) + #count of #of ARs by water year
   labs(title = "ARs making landfall in the region", x = "Water Year", y = "# of ARs") 
 
+ggplot(dmatch, aes(x = flood_year, y = TIVT)) +
+  facet_wrap(~ flood_year, ncol = 2)
+  
 #What were conditions in the week prior to each flood?
 dmatch <- dmatch %>%
   mutate(prior_week = nFlood_date - weeks(1)) #create variable for 7 days prior to each flood date
 ##pick up here
-ggplot(dmatch, aes(Flood_date_prior, TIVT)) + 
+prior_week <- ggplot(dmatch, aes(Flood_date_prior, TIVT)) 
+
+prior_week + 
   geom_boxplot(aes(x = Flood_date)) #IVT around time of floods
 
 
