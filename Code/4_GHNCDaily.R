@@ -40,3 +40,6 @@ precip_plot + geom_point(alpha = 0.9, aes(color = PRCP)) + #stockton data
   theme_bw()
 
 precip_plot + geom_line(aes(group=1))
+
+
+precip_plot + facet_grid(. ~ year)
