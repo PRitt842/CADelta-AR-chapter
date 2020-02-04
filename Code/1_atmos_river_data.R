@@ -26,12 +26,34 @@ floods$nFlood_date <- with(floods, ymd(sprintf('%04d%02d%02d', Year, Month, Day)
   #mutate(stat_year = ifelse(month(Date) %in% c(9:12), year(Date) + 1, year(Date))) %>% #add varaible for seasonal year classificiation
   #filter(month(Date) %in% c(1:3, 9:12)) #only look at winter months
 
-daily_ivt <- westcst_ar %>% 
-  group_by(Date) %>% #group by Date
-  summarise(TIVT = max(Total_IVT)) #aggregate daily IVT by highest value
+# look at format of Date in both dfs
+# dput(floods$Date[1]) 
+# dput(westcst_ar$Date[1])
 
-dmatch <- floods %>% #join data tables
-  right_join(daily_ivt, copy = TRUE) %>% #add flood dates; keep all observations in daily_ivt
+westcst_ar <- westcst_ar %>% 
+  mutate(Date = as.Date(Date))
+
+ivt_data <- westcst_ar %>% 
+  group_by(Date) %>% 
+  filter(Total_IVT == max(Total_IVT))
+
+
+#code below resulted in only two variables
+#daily_ivt <- westcst_ar %>% 
+ # group_by(Date) %>% #group by Date
+  #summarise(TIVT = max(Total_IVT)) #aggregate daily IVT by highest value
+
+#this kept all dates and attrubuted max IVT for that date to all cases of that date
+#ivt_data2 <- westcst_ar %>%
+  #group_by(Date) %>%
+  #mutate(max_IVT = max(Total_IVT)) 
+  
+fld_ars <- right_join(floods, ivt_data, by = "Date", copy = FALSE) #join data tables
+
+#dmatch <- floods %>% 
+  #right_join(ivt_data, copy = TRUE) 
+
+#%>% #add flood dates; keep all observations in daily_ivt
   mutate(flood_year = ifelse(month(Date) %in% c(9:12), year(Date) + 1, year(Date))) %>% #add flood years
   filter(month(Date) %in% c(1:3, 9:12)) #only look at winter months
 # I will need an 7 day window added before Date of flood
